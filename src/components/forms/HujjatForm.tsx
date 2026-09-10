@@ -4,7 +4,7 @@ import { useState } from "react";
 import { getTemplate, type DocField, type DocTemplate } from "@/lib/hujjatlar";
 import { searchXodim, type XodimMatch } from "@/lib/actions/hujjat";
 import { btn } from "@/components/ui";
-import { Field, inputCls, labelCls } from "@/components/form-fields";
+import { Field, inputCls, selectCls, labelCls } from "@/components/form-fields";
 import { IconSearch, IconDownload } from "@/components/icons";
 
 function autofillValue(f: DocField, m: XodimMatch): string {
@@ -105,7 +105,7 @@ export function HujjatForm({ templates }: { templates: DocTemplate[] }) {
             id="hf-template"
             value={templateId}
             onChange={(e) => changeTemplate(e.target.value)}
-            className={inputCls}
+            className={selectCls}
           >
             {templates.map((tpl) => (
               <option key={tpl.id} value={tpl.id}>

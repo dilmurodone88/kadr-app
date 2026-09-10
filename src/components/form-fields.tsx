@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 export const inputCls =
   "w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none transition-colors duration-200 focus:border-primary";
 
+/** Yashil ramkali variant (dropdown/select uchun) */
+export const selectCls =
+  "w-full rounded-lg border border-primary bg-surface px-3 py-2.5 text-sm outline-none transition-colors duration-200 focus:border-primary-dark";
+
 export const labelCls = "mb-1.5 block text-[13px] text-text-soft";
 
 export function Field({

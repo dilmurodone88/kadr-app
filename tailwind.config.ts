@@ -43,7 +43,7 @@ const config: Config = {
         sans: ["var(--font-plex)", "IBM Plex Sans", "system-ui", "sans-serif"],
       },
       maxWidth: {
-        content: "980px",
+        content: "1400px",
       },
     },
   },
