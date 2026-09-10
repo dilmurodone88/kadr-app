@@ -15,12 +15,19 @@ export default async function BuyruqlarPage() {
         sub="Shartnoma va shaxsiy tarkibga oid buyruq hujjatlarini tayyorlang"
       />
 
-      <Panel title="Shartnomalar (Mehnat / GPX)">
-        <HujjatForm templates={templatesByCategory("shartnoma")} />
-      </Panel>
+      {/* Ikkala qism ham bitta kartada */}
+      <Panel>
+        <div className="space-y-8">
+          <section>
+            <h3 className="mb-4 text-[15px] font-semibold text-primary">Shartnomalar (Mehnat / GPX)</h3>
+            <HujjatForm templates={templatesByCategory("shartnoma")} />
+          </section>
 
-      <Panel title="Buyruqlar (shaxsiy tarkibga oid)">
-        <HujjatForm templates={templatesByCategory("buyruq")} />
+          <section className="border-t border-border pt-8">
+            <h3 className="mb-4 text-[15px] font-semibold text-primary">Buyruqlar (shaxsiy tarkibga oid)</h3>
+            <HujjatForm templates={templatesByCategory("buyruq")} />
+          </section>
+        </div>
       </Panel>
     </>
   );
