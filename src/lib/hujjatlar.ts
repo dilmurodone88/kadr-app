@@ -14,7 +14,7 @@ export interface DocField {
   placeholder?: string;
 }
 
-export type DocCategory = "malumotnoma" | "buyruq";
+export type DocCategory = "malumotnoma" | "shartnoma" | "buyruq";
 
 export interface DocTemplate {
   id: string;
@@ -86,7 +86,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
     id: "mehnat-shartnoma",
     title: "Mehnat shartnomasi",
     description: "Xodim bilan tuziladigan mehnat shartnomasi loyihasi",
-    category: "buyruq",
+    category: "shartnoma",
     fields: [
       F.fio,
       F.lavozim,
@@ -104,7 +104,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
     id: "gpx-shartnoma",
     title: "GPX shartnomasi",
     description: "Fuqarolik-huquqiy (GPX) shartnoma loyihasi",
-    category: "buyruq",
+    category: "shartnoma",
     fields: [
       F.fio,
       F.pinfl,
@@ -115,6 +115,109 @@ export const DOC_TEMPLATES: DocTemplate[] = [
       { name: "summa", label: "Shartnoma summasi (so‘m)", type: "number", required: true, placeholder: "masalan: 3000000" },
       { name: "muddat", label: "Bajarilish muddati", required: true, placeholder: "masalan: 30 kun" },
       { name: "sana", label: "Shartnoma sanasi", type: "date", required: true },
+    ],
+  },
+
+  // ── Shaxsiy tarkibga oid buyruqlar ──────────────────────────────
+  {
+    id: "buyruq-ishga-qabul",
+    title: "Ishga qabul",
+    description: "Xodimni ishga qabul qilish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "oylikMaosh", label: "Oylik maosh (so‘m)", type: "number", placeholder: "masalan: 5000000" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 12-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-ishdan-boshatish",
+    title: "Ishdan bo‘shatish",
+    description: "Xodimni ishdan bo‘shatish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "asos", label: "Asos / sabab", required: true, placeholder: "masalan: shaxsiy arizasiga ko‘ra" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 13-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-otpusk",
+    title: "Otpusk (mehnat ta‘tili)",
+    description: "Xodimni mehnat ta‘tiliga chiqarish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "tatilKunlari", label: "Ta‘til kunlari (necha kun)", type: "number", required: true, placeholder: "masalan: 15" },
+      { name: "boshlanishSana", label: "Ta‘til boshlanish sanasi", type: "date", required: true },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 14-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-stavka",
+    title: "Stavka o‘zgartirish",
+    description: "Xodim stavkasini (ish haqi) o‘zgartirish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "yangiStavka", label: "Yangi stavka / oylik (so‘m)", type: "number", required: true, placeholder: "masalan: 6000000" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 15-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-lavozim-otkazish",
+    title: "Boshqa lavozimga o‘tkazish",
+    description: "Xodimni boshqa lavozimga o‘tkazish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "yangiLavozim", label: "Yangi lavozim", required: true, placeholder: "masalan: Bosh menejer" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 16-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-qoshimcha-vazifa",
+    title: "Qo‘shimcha vazifa yuklash",
+    description: "Xodimga qo‘shimcha vazifa yuklash to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "qoshimchaVazifa", label: "Qo‘shimcha vazifa", required: true, placeholder: "masalan: hujjatlar arxivini yuritish" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 17-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
+    ],
+  },
+  {
+    id: "buyruq-ish-haqisiz-tatil",
+    title: "Ish haqisiz ta‘til (B.S)",
+    description: "Ish haqi saqlanmaydigan ta‘tilga chiqarish to‘g‘risida buyruq",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.lavozim,
+      F.bolim,
+      { name: "tatilKunlari", label: "Ta‘til kunlari (necha kun)", type: "number", required: true, placeholder: "masalan: 10" },
+      { name: "boshlanishSana", label: "Ta‘til boshlanish sanasi", type: "date", required: true },
+      { name: "asos", label: "Sabab", required: true, placeholder: "masalan: oilaviy sharoitga ko‘ra" },
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 18-b" },
+      { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
     ],
   },
 ];

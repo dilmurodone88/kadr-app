@@ -177,11 +177,86 @@ function gpxShartnoma(v: Vals): (Paragraph | Table)[] {
   ];
 }
 
+// ── Shaxsiy tarkibga oid buyruqlar ────────────────────────────────
+function dateVal(v: Vals, key: string): string {
+  const s = (v[key] ?? "").trim();
+  return s ? formatDate(s) : "________";
+}
+
+/** Buyruq hujjatining umumiy karkasi: sarlavha, raqam/sana, mazmun, imzo */
+function buyruqDoc(v: Vals, subtitle: string, bodyParas: Paragraph[]): (Paragraph | Table)[] {
+  return [
+    title("BUYRUQ"),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [t(`№ ${val(v, "buyruqRaqami")}`)] }),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [t(sanaVal(v))] }),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [t(subtitle, true)] }),
+    ...bodyParas,
+    ...signature(),
+  ];
+}
+
+function buyruqIshgaQabul(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Ishga qabul qilish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "bolim")} bo‘limiga ${val(v, "lavozim")} lavozimiga ${sanaVal(v)} dan ishga qabul qilinsin.`)]),
+    ...(v.oylikMaosh?.trim() ? [body([t(`Unga oylik ish haqi ${val(v, "oylikMaosh")} so‘m miqdorida belgilansin.`)])] : []),
+    body([t("Asos: xodimning shaxsiy arizasi va mehnat shartnomasi.")]),
+  ]);
+}
+
+function buyruqIshdanBoshatish(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Ishdan bo‘shatish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} lavozimidan ${sanaVal(v)} dan ishdan bo‘shatilsin.`)]),
+    body([t(`Asos: ${val(v, "asos")}.`)]),
+  ]);
+}
+
+function buyruqOtpusk(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Mehnat ta‘tiliga chiqarish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} ga ${dateVal(v, "boshlanishSana")} dan boshlab ${val(v, "tatilKunlari")} kun mehnat ta‘tili berilsin.`)]),
+    body([t("Asos: mehnat ta‘tillari jadvali va xodimning arizasi.")]),
+  ]);
+}
+
+function buyruqStavka(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Stavka (ish haqi) o‘zgartirish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} ning oylik ish haqi (stavkasi) ${sanaVal(v)} dan ${val(v, "yangiStavka")} so‘m etib belgilansin.`)]),
+    body([t("Asos: tashkilot shtat jadvali.")]),
+  ]);
+}
+
+function buyruqLavozimOtkazish(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Boshqa lavozimga o‘tkazish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} lavozimidan ${val(v, "yangiLavozim")} lavozimiga ${sanaVal(v)} dan o‘tkazilsin.`)]),
+    body([t("Asos: xodimning roziligi va tashkilot ehtiyoji.")]),
+  ]);
+}
+
+function buyruqQoshimchaVazifa(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Qo‘shimcha vazifa yuklash to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} ga asosiy ish vazifalaridan tashqari ${sanaVal(v)} dan `), t(val(v, "qoshimchaVazifa"), true), t(" vazifasi yuklansin.")]),
+    body([t("Asos: tashkilot ehtiyoji.")]),
+  ]);
+}
+
+function buyruqIshHaqisizTatil(v: Vals): (Paragraph | Table)[] {
+  return buyruqDoc(v, "Ish haqi saqlanmaydigan ta‘tilga chiqarish to‘g‘risida", [
+    body([t(val(v, "fio"), true), t(` — ${val(v, "lavozim")} ga ${dateVal(v, "boshlanishSana")} dan boshlab ${val(v, "tatilKunlari")} kun ish haqi saqlanmagan holda ta‘til berilsin.`)]),
+    body([t(`Asos: ${val(v, "asos")}.`)]),
+  ]);
+}
+
 const BUILDERS: Record<string, (v: Vals) => (Paragraph | Table)[]> = {
   malumotnoma,
   obyektivka,
   "mehnat-shartnoma": mehnatShartnoma,
   "gpx-shartnoma": gpxShartnoma,
+  "buyruq-ishga-qabul": buyruqIshgaQabul,
+  "buyruq-ishdan-boshatish": buyruqIshdanBoshatish,
+  "buyruq-otpusk": buyruqOtpusk,
+  "buyruq-stavka": buyruqStavka,
+  "buyruq-lavozim-otkazish": buyruqLavozimOtkazish,
+  "buyruq-qoshimcha-vazifa": buyruqQoshimchaVazifa,
+  "buyruq-ish-haqisiz-tatil": buyruqIshHaqisizTatil,
 };
 
 export async function buildHujjatDocx(templateId: string, values: Vals): Promise<Buffer> {

@@ -19,12 +19,18 @@ export default async function BuyruqlarPage() {
     <>
       <PageHeader
         title="Buyruqlar"
-        sub="Shartnoma hujjatlarini (Mehnat / GPX) tayyorlang va barcha chiqarilgan buyruqlarni ko‘ring"
+        sub="Shartnoma va shaxsiy tarkibga oid buyruq hujjatlarini tayyorlang"
       />
-      <Panel title="Shartnoma hujjati yaratish (Mehnat / GPX)">
+
+      <Panel title="Shartnomalar (Mehnat / GPX)">
+        <HujjatForm templates={templatesByCategory("shartnoma")} />
+      </Panel>
+
+      <Panel title="Buyruqlar (shaxsiy tarkibga oid)">
         <HujjatForm templates={templatesByCategory("buyruq")} />
       </Panel>
-      <Panel title={`Barcha buyruqlar (${orders.length})`}>
+
+      <Panel title={`Chiqarilgan buyruqlar (${orders.length})`}>
         <OrdersTable orders={orders} showEmployee />
       </Panel>
     </>
