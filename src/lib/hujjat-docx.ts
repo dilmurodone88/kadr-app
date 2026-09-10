@@ -12,6 +12,7 @@ import {
   BorderStyle,
 } from "docx";
 import { formatDate } from "@/lib/format";
+import { fillDocxTemplate } from "@/lib/docx-fill";
 
 type Vals = Record<string, string>;
 
@@ -295,7 +296,69 @@ const BUILDERS: Record<string, (v: Vals) => (Paragraph | Table)[]> = {
   "buyruq-ish-haqisiz-tatil": buyruqIshHaqisizTatil,
 };
 
+// ── Real .docx shablon bilan to'ldiriladigan hujjatlar ────────────
+function fioQisqa(fio: string | undefined): string {
+  const parts = (fio ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "________";
+  const [familiya, ism, otasi] = parts;
+  const i = ism ? ism[0] + "." : "";
+  const o = otasi ? otasi[0] + "." : "";
+  return `${i}${o}${familiya}`;
+}
+
+/** yyyy-mm-dd -> "2026 йил 02 июнь" (GPX shablon uslubi) */
+function sanaKirilYil(s: string | undefined): string {
+  const m = (s ?? "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return "20___ йил «___» __________";
+  const [, y, mo, d] = m;
+  return `${y} йил ${d} ${OYLAR_KIRIL[Number(mo) - 1]}`;
+}
+
+function fmtDdMmYyyy(s: string | undefined): string {
+  const m = (s ?? "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : "__.__.____";
+}
+
+function tv(v: Vals, k: string): string {
+  return (v[k] ?? "").trim() || "________";
+}
+
+/** gpx-shartnoma real shabloni uchun teg qiymatlari */
+function gpxTemplateData(v: Vals): Record<string, string> {
+  const passport = `${(v.passportSeriya ?? "").trim()} ${(v.passportRaqam ?? "").trim()}`.trim();
+  return {
+    fio: tv(v, "fio"),
+    fioQisqa: fioQisqa(v.fio),
+    jshshir: tv(v, "pinfl"),
+    karta: tv(v, "kartaRaqami"),
+    passport: passport || "________",
+    manzil: tv(v, "manzil"),
+    passportBerilgan: tv(v, "passportBerilgan"),
+    shartnomaRaqami: tv(v, "shartnomaRaqami"),
+    sanaUzun: sanaKirilYil(v.sana),
+    sana: sanaKirilYil(v.sana),
+    sanaBoshlanish: fmtDdMmYyyy(v.sanaBoshlanish),
+    sanaTugash: fmtDdMmYyyy(v.sanaTugash),
+    sanaTugashUzun: sanaKirilYil(v.sanaTugash),
+    summa: tv(v, "summa"),
+    summaSozlarda: tv(v, "summaSozlarda"),
+    daloSumma: tv(v, "daloSumma"),
+    daloSummaSozlarda: tv(v, "daloSummaSozlarda"),
+  };
+}
+
+/** templateId -> real .docx shablon fayli va teg xaritasi */
+const DOCX_TEMPLATE_FILES: Record<string, { file: string; map: (v: Vals) => Record<string, string> }> = {
+  "gpx-shartnoma": { file: "gpx-shartnoma.docx", map: gpxTemplateData },
+};
+
 export async function buildHujjatDocx(templateId: string, values: Vals): Promise<Buffer> {
+  // Real .docx shablon bo'lsa — docxtemplater bilan to'ldiramiz
+  const docxTmpl = DOCX_TEMPLATE_FILES[templateId];
+  if (docxTmpl) {
+    return fillDocxTemplate(docxTmpl.file, docxTmpl.map(values));
+  }
+
   const builder = BUILDERS[templateId];
   if (!builder) throw new Error("Noma'lum hujjat turi");
 

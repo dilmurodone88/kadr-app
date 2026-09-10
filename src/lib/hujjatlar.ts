@@ -40,6 +40,7 @@ const F = {
   passportSeriya: { name: "passportSeriya", label: "Passport seriyasi", from: "anketa", fromKey: "passportSeriya" } as DocField,
   passportRaqam: { name: "passportRaqam", label: "Passport raqami", from: "anketa", fromKey: "passportRaqam" } as DocField,
   oilaviyHolati: { name: "oilaviyHolati", label: "Oilaviy holati", from: "anketa", fromKey: "oilaviyHolati" } as DocField,
+  kartaRaqami: { name: "kartaRaqami", label: "Karta raqami", from: "anketa", fromKey: "kartaRaqami" } as DocField,
 };
 
 export const DOC_TEMPLATES: DocTemplate[] = [
@@ -103,7 +104,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   {
     id: "gpx-shartnoma",
     title: "GPX shartnomasi",
-    description: "Fuqarolik-huquqiy (GPX) shartnoma loyihasi",
+    description: "Fuqarolik-huquqiy (GPX) shartnoma — real shablon asosida to‘ldiriladi",
     category: "shartnoma",
     fields: [
       F.fio,
@@ -111,10 +112,16 @@ export const DOC_TEMPLATES: DocTemplate[] = [
       F.passportSeriya,
       F.passportRaqam,
       F.manzil,
-      { name: "ishTavsifi", label: "Bajariladigan ish/xizmat", type: "textarea", required: true, placeholder: "Bajariladigan ish yoki xizmat tavsifi" },
-      { name: "summa", label: "Shartnoma summasi (so‘m)", type: "number", required: true, placeholder: "masalan: 3000000" },
-      { name: "muddat", label: "Bajarilish muddati", required: true, placeholder: "masalan: 30 kun" },
+      F.kartaRaqami,
+      { name: "passportBerilgan", label: "Passport kim tomonidan berilgan", required: true, placeholder: "masalan: Navoiy viloyati, Nurota tumani IIB, 26.08.2020" },
+      { name: "shartnomaRaqami", label: "Shartnoma raqami", required: true, placeholder: "masalan: 49/1" },
       { name: "sana", label: "Shartnoma sanasi", type: "date", required: true },
+      { name: "sanaBoshlanish", label: "Hisobot davri boshlanishi", type: "date", required: true },
+      { name: "sanaTugash", label: "Hisobot davri tugashi", type: "date", required: true },
+      { name: "summa", label: "Xizmat qiymati (so‘m, raqamda)", required: true, placeholder: "masalan: 6 818 181,82" },
+      { name: "summaSozlarda", label: "Xizmat qiymati (so‘zlarda)", type: "textarea", required: true, placeholder: "masalan: olti million sakkiz yuz o‘n sakkiz ming..." },
+      { name: "daloSumma", label: "Dalolatnoma summasi (raqamda)", placeholder: "masalan: 11 931 818,18" },
+      { name: "daloSummaSozlarda", label: "Dalolatnoma summasi (so‘zlarda)", type: "textarea" },
     ],
   },
 
