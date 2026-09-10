@@ -96,8 +96,11 @@ function MehnatShartnoma({ v }: { v: (k: string) => string }) {
 
 /** Dinamik hujjat: shablon maydonlaridan (label — qiymat) tuziladi */
 function GenericHujjat({ template, v }: { template: DocTemplate; v: (k: string) => string }) {
-  const dateField = template.fields.find((f) => f.type === "date");
-  const bodyFields = template.fields.filter((f) => f.type !== "date");
+  // Asosiy sana (header'da) — "sana" nomli maydon; qolgan sanalar body'da qoladi
+  const dateField =
+    template.fields.find((f) => f.name === "sana") ??
+    template.fields.find((f) => f.type === "date");
+  const bodyFields = template.fields.filter((f) => f !== dateField);
 
   const isShartnoma = template.category === "shartnoma";
   const [left, right] = isShartnoma ? ["Buyurtmachi", "Ijrochi"] : ["Rahbar", "Tanishdim"];
