@@ -152,10 +152,36 @@ function mehnatShartnoma(v: Vals): (Paragraph | Table)[] {
   ];
 }
 
+function gpxShartnoma(v: Vals): (Paragraph | Table)[] {
+  const passport = `${val(v, "passportSeriya")} ${val(v, "passportRaqam")}`.trim();
+  return [
+    title("FUQAROLIK-HUQUQIY (GPX) SHARTNOMA"),
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      spacing: { after: 240 },
+      children: [t(sanaVal(v))],
+    }),
+    body([
+      t("Buyurtmachi (tashkilot) bir tomondan va ijrochi "),
+      t(val(v, "fio"), true),
+      t(` (JSHSHIR: ${val(v, "pinfl")}, passport: ${passport}, manzil: ${val(v, "manzil")}) ikkinchi tomondan quyidagi shartnomani tuzdilar:`),
+    ]),
+    body([t("1. Ijrochi quyidagi ish/xizmatni bajarish majburiyatini oladi: "), t(val(v, "ishTavsifi"), true), t(".")]),
+    body([t(`2. Ish/xizmat uchun to‘lov ${val(v, "summa")} so‘m miqdorida belgilanadi.`)]),
+    body([t(`3. Bajarilish muddati: ${val(v, "muddat")}.`)]),
+    body([t("4. Tomonlarning huquq va majburiyatlari O‘zbekiston Respublikasi Fuqarolik kodeksi bilan tartibga solinadi.")]),
+    new Paragraph({
+      spacing: { before: 500 },
+      children: [t("Buyurtmachi: __________________         Ijrochi: __________________")],
+    }),
+  ];
+}
+
 const BUILDERS: Record<string, (v: Vals) => (Paragraph | Table)[]> = {
   malumotnoma,
   obyektivka,
   "mehnat-shartnoma": mehnatShartnoma,
+  "gpx-shartnoma": gpxShartnoma,
 };
 
 export async function buildHujjatDocx(templateId: string, values: Vals): Promise<Buffer> {

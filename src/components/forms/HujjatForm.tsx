@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DOC_TEMPLATES, getTemplate, type DocField } from "@/lib/hujjatlar";
+import { getTemplate, type DocField, type DocTemplate } from "@/lib/hujjatlar";
 import { searchXodim, type XodimMatch } from "@/lib/actions/hujjat";
 import { btn } from "@/components/ui";
 import { Field, inputCls, labelCls } from "@/components/form-fields";
@@ -23,14 +23,14 @@ function buildValues(templateId: string, m: XodimMatch | null): Record<string, s
   return out;
 }
 
-export function HujjatForm() {
-  const [templateId, setTemplateId] = useState(DOC_TEMPLATES[0].id);
+export function HujjatForm({ templates }: { templates: DocTemplate[] }) {
+  const [templateId, setTemplateId] = useState(templates[0].id);
   const [query, setQuery] = useState("");
   const [matches, setMatches] = useState<XodimMatch[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [selected, setSelected] = useState<XodimMatch | null>(null);
-  const [values, setValues] = useState<Record<string, string>>(() => buildValues(DOC_TEMPLATES[0].id, null));
+  const [values, setValues] = useState<Record<string, string>>(() => buildValues(templates[0].id, null));
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
 
@@ -101,8 +101,8 @@ export function HujjatForm() {
       {/* 1. Hujjat turi */}
       <div>
         <p className={labelCls}>Hujjat turi</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          {DOC_TEMPLATES.map((tpl) => (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {templates.map((tpl) => (
             <button
               key={tpl.id}
               type="button"

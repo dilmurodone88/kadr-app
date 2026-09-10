@@ -14,10 +14,13 @@ export interface DocField {
   placeholder?: string;
 }
 
+export type DocCategory = "malumotnoma" | "buyruq";
+
 export interface DocTemplate {
   id: string;
   title: string;
   description: string;
+  category: DocCategory;
   fields: DocField[];
 }
 
@@ -44,6 +47,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
     id: "malumotnoma",
     title: "Ma‘lumotnoma",
     description: "Xodimning tashkilotda ishlashi haqidagi rasmiy ma‘lumotnoma",
+    category: "malumotnoma",
     fields: [
       F.fio,
       F.lavozim,
@@ -59,6 +63,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
     id: "obyektivka",
     title: "Obyektivka (shaxsiy varaqa)",
     description: "Xodimning to‘liq shaxsiy ma‘lumotlar varag‘i",
+    category: "malumotnoma",
     fields: [
       F.fio,
       F.lavozim,
@@ -81,6 +86,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
     id: "mehnat-shartnoma",
     title: "Mehnat shartnomasi",
     description: "Xodim bilan tuziladigan mehnat shartnomasi loyihasi",
+    category: "buyruq",
     fields: [
       F.fio,
       F.lavozim,
@@ -94,7 +100,28 @@ export const DOC_TEMPLATES: DocTemplate[] = [
       { name: "sana", label: "Shartnoma sanasi", type: "date", required: true },
     ],
   },
+  {
+    id: "gpx-shartnoma",
+    title: "GPX shartnomasi",
+    description: "Fuqarolik-huquqiy (GPX) shartnoma loyihasi",
+    category: "buyruq",
+    fields: [
+      F.fio,
+      F.pinfl,
+      F.passportSeriya,
+      F.passportRaqam,
+      F.manzil,
+      { name: "ishTavsifi", label: "Bajariladigan ish/xizmat", type: "textarea", required: true, placeholder: "Bajariladigan ish yoki xizmat tavsifi" },
+      { name: "summa", label: "Shartnoma summasi (so‘m)", type: "number", required: true, placeholder: "masalan: 3000000" },
+      { name: "muddat", label: "Bajarilish muddati", required: true, placeholder: "masalan: 30 kun" },
+      { name: "sana", label: "Shartnoma sanasi", type: "date", required: true },
+    ],
+  },
 ];
+
+export function templatesByCategory(cat: DocCategory): DocTemplate[] {
+  return DOC_TEMPLATES.filter((t) => t.category === cat);
+}
 
 export function getTemplate(id: string): DocTemplate | undefined {
   return DOC_TEMPLATES.find((t) => t.id === id);
