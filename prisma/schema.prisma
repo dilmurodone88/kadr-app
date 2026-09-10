@@ -50,11 +50,16 @@ model Account {
   @@map("accounts")
 }
 
-/// Anketa — xodimning shaxsiy ma'lumotlar varag'i (1:1 Account)
+/// Anketa — ishga olinishi kerak bo'lgan nomzodning shaxsiy varag'i.
+/// Standalone: mavjud xodimga bog'lanmagan (accountId ixtiyoriy — ishga
+/// olingach bog'lanishi mumkin). Nomzodlar Xodimlar ro'yxatida ko'rinmaydi.
 model Anketa {
   id             String   @id @default(cuid())
-  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId      String   @unique
+  account        Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  accountId      String?  @unique
+  fio            String   @default("") // nomzodning F.I.O.
+  lavozim        String? // ko'zlanayotgan lavozim
+  bolim          String?
   tugilganSana   String? // yyyy-mm-dd
   tugilganJoy    String?
   millati        String?
