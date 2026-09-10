@@ -4,7 +4,8 @@
 set -e
 
 echo "⏳ [1/3] Prisma sxemasini DBga yoyish (db push)..."
-npx prisma db push --skip-generate --accept-data-loss
+# --accept-data-loss yo'q: destruktiv o'zgarishda jim ma'lumot yo'qotish o'rniga xato beradi
+npx prisma db push --skip-generate
 
 echo "🌱 [2/3] Demo hisoblarni seed qilish..."
 npx prisma db seed || echo "⚠️  Seed o'tkazib yuborildi (ehtimol allaqachon mavjud)"

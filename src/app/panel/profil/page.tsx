@@ -1,15 +1,11 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
-import { homeHref } from "@/lib/nav";
+import { requirePanelUser } from "@/lib/guard";
 import { CONTRACT_LABELS } from "@/lib/labels";
 import { PageHeader, Panel } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-  if (user.role !== "xodim") redirect(homeHref(user.role, user.shartnoma));
+  const user = await requirePanelUser("xodim");
 
   const rows: [string, string][] = [
     ["F.I.O.", user.fio],

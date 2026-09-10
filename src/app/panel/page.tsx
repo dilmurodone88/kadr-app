@@ -1,20 +1,13 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { homeHref } from "@/lib/nav";
+import { requirePanelUser } from "@/lib/guard";
 import { PageHeader, Panel, StatCard } from "@/components/ui";
 import { OrderForm } from "@/components/forms/OrderForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function PanelHome() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-
   // Faqat rahbar bosh sahifada dashboard ko'radi; qolganlar o'z bo'limiga
-  if (user.role !== "rahbar") {
-    redirect(homeHref(user.role, user.shartnoma));
-  }
+  await requirePanelUser("rahbar");
 
   const [employees, ordersCount, requestsCount] = await Promise.all([
     prisma.account.findMany({

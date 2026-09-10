@@ -1,18 +1,14 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { homeHref } from "@/lib/nav";
+import { requirePanelUser } from "@/lib/guard";
 import { formatDate } from "@/lib/format";
-import { PageHeader, Panel, Badge, EmptyState, TableWrap } from "@/components/ui";
+import { PageHeader, Panel, Badge, EmptyState, TableWrap, Thead } from "@/components/ui";
 import { StatusActions } from "@/components/StatusActions";
 import { updateReportStatus } from "@/lib/actions/reports";
 
 export const dynamic = "force-dynamic";
 
 export default async function GpxPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-  if (user.role !== "kadr") redirect(homeHref(user.role, user.shartnoma));
+  await requirePanelUser("kadr");
 
   const reports = await prisma.report.findMany({
     orderBy: { sana: "desc" },
@@ -28,18 +24,7 @@ export default async function GpxPage() {
       <Panel>
         {reports.length ? (
           <TableWrap>
-            <thead>
-              <tr>
-                {["Xodim", "Sana", "Tavsif", "Holat", ""].map((h, i) => (
-                  <th
-                    key={i}
-                    className="border-b border-border px-3 py-2.5 text-left text-xs font-medium text-text-mute"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+            <Thead columns={["Xodim", "Sana", "Tavsif", "Holat", ""]} />
             <tbody>
               {reports.map((h) => (
                 <tr key={h.id} className="border-b border-border last:border-0 align-top">

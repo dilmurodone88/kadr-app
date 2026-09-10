@@ -1,18 +1,17 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { requirePanelUser } from "@/lib/guard";
 import { homeHref } from "@/lib/nav";
 import { formatDate } from "@/lib/format";
-import { PageHeader, Panel, Badge, EmptyState, TableWrap } from "@/components/ui";
+import { PageHeader, Panel, Badge, EmptyState, TableWrap, Thead } from "@/components/ui";
 import { ReportForm } from "@/components/forms/ReportForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function HisobotPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
+  const user = await requirePanelUser("xodim");
   // Faqat GPX shartnomasidagi xodim
-  if (user.role !== "xodim" || user.shartnoma !== "GPX") {
+  if (user.shartnoma !== "GPX") {
     redirect(homeHref(user.role, user.shartnoma));
   }
 
@@ -34,18 +33,7 @@ export default async function HisobotPage() {
       <Panel title={`Topshirilgan hisobotlarim (${reports.length})`}>
         {reports.length ? (
           <TableWrap>
-            <thead>
-              <tr>
-                {["Sana", "Tavsif", "Holat"].map((h) => (
-                  <th
-                    key={h}
-                    className="border-b border-border px-3 py-2.5 text-left text-xs font-medium text-text-mute"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+            <Thead columns={["Sana", "Tavsif", "Holat"]} />
             <tbody>
               {reports.map((r) => (
                 <tr key={r.id} className="border-b border-border last:border-0 align-top">

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Holat } from "@prisma/client";
-import { HOLAT_LABELS, holatTone } from "@/lib/labels";
+import { HOLAT_LABELS, holatTint } from "@/lib/labels";
 
 /** Tugma uslublari — Tailwind class satrlarini qaytaradi */
 export const btn = {
@@ -60,15 +60,10 @@ export function EmptyState({ children }: { children: ReactNode }) {
 }
 
 export function Badge({ holat }: { holat: Holat }) {
-  const tone = holatTone(holat);
-  const cls =
-    tone === "ok"
-      ? "bg-success-tint text-success"
-      : tone === "no"
-        ? "bg-danger-tint text-danger"
-        : "bg-warn-tint text-warn";
   return (
-    <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+    <span
+      className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${holatTint(holat)}`}
+    >
       {HOLAT_LABELS[holat]}
     </span>
   );
@@ -80,5 +75,23 @@ export function TableWrap({ children }: { children: ReactNode }) {
     <div className="-mx-2 overflow-x-auto px-2">
       <table className="w-full min-w-[520px] border-collapse text-[13.5px]">{children}</table>
     </div>
+  );
+}
+
+/** Jadval sarlavhasi — barcha sahifalar uchun umumiy */
+export function Thead({ columns }: { columns: string[] }) {
+  return (
+    <thead>
+      <tr>
+        {columns.map((c, i) => (
+          <th
+            key={i}
+            className="border-b border-border px-3 py-2.5 text-left text-xs font-medium text-text-mute"
+          >
+            {c}
+          </th>
+        ))}
+      </tr>
+    </thead>
   );
 }

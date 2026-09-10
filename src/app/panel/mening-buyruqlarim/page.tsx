@@ -1,16 +1,12 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { homeHref } from "@/lib/nav";
+import { requirePanelUser } from "@/lib/guard";
 import { PageHeader, Panel } from "@/components/ui";
 import { OrdersTable } from "@/components/OrdersTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function MeningBuyruqlarimPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-  if (user.role !== "xodim") redirect(homeHref(user.role, user.shartnoma));
+  const user = await requirePanelUser("xodim");
 
   const orders = await prisma.order.findMany({
     where: { employeeId: user.id },

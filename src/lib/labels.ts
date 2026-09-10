@@ -58,3 +58,11 @@ export function holatTone(holat: Holat): "ok" | "no" | "wait" {
   if (holat === "RAD_ETILDI") return "no";
   return "wait";
 }
+
+/** Holatga mos Tailwind badge klasslari (Badge va MiniBadge uchun umumiy manba) */
+export function holatTint(holat: Holat): string {
+  const tone = holatTone(holat);
+  if (tone === "ok") return "bg-success-tint text-success";
+  if (tone === "no") return "bg-danger-tint text-danger";
+  return "bg-warn-tint text-warn";
+}

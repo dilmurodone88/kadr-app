@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { SessionUser } from "@/lib/session";
 import type { NavItem, IconKey } from "@/lib/nav";
-import { ROLE_LABELS, CONTRACT_LABELS, HOLAT_LABELS, holatTone } from "@/lib/labels";
+import { ROLE_LABELS, CONTRACT_LABELS, HOLAT_LABELS, holatTint } from "@/lib/labels";
 import { logoutAction } from "@/lib/actions/auth";
 import { btn } from "@/components/ui";
 import type { Holat } from "@prisma/client";
@@ -206,15 +206,8 @@ function Row({ k, v }: { k: string; v: string }) {
 }
 
 function MiniBadge({ holat }: { holat: Holat }) {
-  const tone = holatTone(holat);
-  const cls =
-    tone === "ok"
-      ? "bg-success-tint text-success"
-      : tone === "no"
-        ? "bg-danger-tint text-danger"
-        : "bg-warn-tint text-warn";
   return (
-    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${holatTint(holat)}`}>
       {HOLAT_LABELS[holat]}
     </span>
   );

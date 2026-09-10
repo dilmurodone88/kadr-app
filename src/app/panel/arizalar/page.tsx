@@ -1,19 +1,17 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { requirePanelUser } from "@/lib/guard";
 import { homeHref } from "@/lib/nav";
 import { ROLE_TO_BOLIM } from "@/lib/labels";
 import { formatDate } from "@/lib/format";
-import { PageHeader, Panel, Badge, EmptyState, TableWrap } from "@/components/ui";
+import { PageHeader, Panel, Badge, EmptyState, TableWrap, Thead } from "@/components/ui";
 import { StatusActions } from "@/components/StatusActions";
 import { updateRequestStatus } from "@/lib/actions/requests";
 
 export const dynamic = "force-dynamic";
 
 export default async function ArizalarPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-
+  const user = await requirePanelUser("kadr", "buxgalteriya", "it");
   const bolim = ROLE_TO_BOLIM[user.role];
   if (!bolim) redirect(homeHref(user.role, user.shartnoma));
 
@@ -32,18 +30,7 @@ export default async function ArizalarPage() {
       <Panel>
         {requests.length ? (
           <TableWrap>
-            <thead>
-              <tr>
-                {["Xodim", "Turi", "Matn", "Sana", "Holat", ""].map((h, i) => (
-                  <th
-                    key={i}
-                    className="border-b border-border px-3 py-2.5 text-left text-xs font-medium text-text-mute"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+            <Thead columns={["Xodim", "Turi", "Matn", "Sana", "Holat", ""]} />
             <tbody>
               {requests.map((r) => (
                 <tr key={r.id} className="border-b border-border last:border-0 align-top">

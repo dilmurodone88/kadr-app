@@ -1,8 +1,16 @@
-/** Sanani dd.mm.yyyy ko'rinishida (deterministik, locale'ga bog'liq emas) */
+const TZ = "Asia/Tashkent";
+
+const fmt = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TZ,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+/** Sanani dd.mm.yyyy ko'rinishida, Asia/Tashkent mintaqasida (ICU, tzdata shart emas) */
 export function formatDate(d: Date | string): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  const dd = String(date.getDate()).padStart(2, "0");
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const yyyy = date.getFullYear();
-  return `${dd}.${mm}.${yyyy}`;
+  const parts = fmt.formatToParts(date);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("day")}.${get("month")}.${get("year")}`;
 }

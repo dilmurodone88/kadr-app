@@ -1,18 +1,12 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { homeHref } from "@/lib/nav";
+import { requirePanelUser } from "@/lib/guard";
 import { PageHeader, Panel } from "@/components/ui";
 import { OrdersTable } from "@/components/OrdersTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function BuyruqlarPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
-  if (user.role !== "rahbar" && user.role !== "kadr") {
-    redirect(homeHref(user.role, user.shartnoma));
-  }
+  const user = await requirePanelUser("rahbar", "kadr");
 
   const orders = await prisma.order.findMany({
     orderBy: { sana: "desc" },

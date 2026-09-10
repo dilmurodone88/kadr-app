@@ -15,7 +15,7 @@ export function EmployeeForm() {
 
   useEffect(() => {
     if (state.ok) formRef.current?.reset();
-  }, [state.ok]);
+  }, [state]);
 
   return (
     <form ref={formRef} action={action} className="space-y-3.5">
