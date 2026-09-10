@@ -30,8 +30,8 @@ export function getNavItems(role: Role, shartnoma: Contract | null): NavItem[] {
       ];
     case "kadr":
       return [
-        { href: "/panel/xodimlar", label: "Xodimlar", icon: "users" },
         { href: "/panel/anketalar", label: "Anketa", icon: "idcard" },
+        { href: "/panel/xodimlar", label: "Xodimlar", icon: "users" },
         { href: "/panel/hujjatlar", label: "Ma‘lumotnoma", icon: "document" },
         { href: "/panel/buyruqlar", label: "Buyruqlar", icon: "clipboard" },
         { href: "/panel/arizalar", label: "Menga tushgan arizalar", icon: "inbox" },

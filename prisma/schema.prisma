@@ -70,6 +70,7 @@ model Anketa {
   passportSeriya String? // masalan: AA
   passportRaqam  String?
   pinfl          String? // JSHSHIR (14 raqam)
+  kartaRaqami    String? // Anor bank (Xumo) karta raqami
   oilaviyHolati  String? // Uylangan | Turmushga chiqqan | Bo'ydoq | ...
   qoshimcha      String?  @db.Text
   createdAt      DateTime @default(now())

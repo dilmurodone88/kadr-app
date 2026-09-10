@@ -22,6 +22,7 @@ const FIELDS = [
   "passportSeriya",
   "passportRaqam",
   "pinfl",
+  "kartaRaqami",
   "oilaviyHolati",
   "qoshimcha",
 ] as const;

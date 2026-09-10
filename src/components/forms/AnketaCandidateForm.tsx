@@ -21,6 +21,7 @@ export interface CandidateValues {
   passportSeriya: string | null;
   passportRaqam: string | null;
   pinfl: string | null;
+  kartaRaqami: string | null;
   oilaviyHolati: string | null;
   qoshimcha: string | null;
 }
@@ -111,6 +112,23 @@ export function AnketaCandidateForm({ anketa }: { anketa?: CandidateValues | nul
           <input id="passportRaqam" name="passportRaqam" defaultValue={v("passportRaqam")} inputMode="numeric" maxLength={7} placeholder="1234567" className={inputCls} />
         </Field>
       </FormRow>
+
+      <Field label="Karta raqami" htmlFor="kartaRaqami">
+        <div className="relative">
+          <input
+            id="kartaRaqami"
+            name="kartaRaqami"
+            inputMode="numeric"
+            maxLength={19}
+            defaultValue={v("kartaRaqami")}
+            placeholder="0000 0000 0000 0000"
+            className={`${inputCls} pr-36`}
+          />
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md bg-primary-tint px-2 py-1 text-xs font-medium text-primary-dark">
+            Anor bank (Xumo)
+          </span>
+        </div>
+      </Field>
 
       <Field label="Qo‘shimcha ma‘lumot" htmlFor="qoshimcha">
         <textarea id="qoshimcha" name="qoshimcha" rows={3} defaultValue={v("qoshimcha")} placeholder="Mehnat faoliyati, qo‘shimcha ma‘lumotlar" className={`${inputCls} resize-y`} />
