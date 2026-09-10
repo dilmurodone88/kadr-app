@@ -1,0 +1,94 @@
+// Kadr Boshqaruv Tizimi — Prisma schema (MySQL)
+// Demodagi ma'lumot modellari relyatsion sxemaga ko'chirildi.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  rahbar
+  kadr
+  xodim
+  buxgalteriya
+  it
+}
+
+enum Contract {
+  MEHNAT // Mehnat shartnomasi
+  GPX // GPX shartnomasi
+}
+
+/// Holat: barcha workflow obyektlari uchun umumiy status
+enum Holat {
+  KORIB_CHIQILMOQDA // Ko'rib chiqilmoqda
+  TASDIQLANDI // Tasdiqlandi
+  RAD_ETILDI // Rad etildi
+  IMZOLANGAN // Imzolangan (buyruqlar uchun)
+}
+
+model Account {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String // bcrypt hash
+  role      Role
+  fio       String
+  lavozim   String
+  bolim     String
+  shartnoma Contract?
+  createdAt DateTime  @default(now())
+
+  orders   Order[]
+  requests Request[]
+  reports  Report[]
+
+  @@map("accounts")
+}
+
+/// Buyruq — rahbar chiqaradi, QR bilan imzolanadi
+model Order {
+  id         String   @id @default(cuid())
+  turi       String
+  employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  rahbar     String // buyruqni chiqargan rahbar username
+  izoh       String?  @db.Text
+  holat      Holat    @default(IMZOLANGAN)
+  sana       DateTime @default(now())
+
+  @@index([employeeId])
+  @@map("orders")
+}
+
+/// Ariza — xodim yuboradi, bo'limga yo'naltiriladi
+model Request {
+  id         String   @id @default(cuid())
+  employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  bolim      String // Kadrlar | Buxgalteriya | IT
+  turi       String // Otpuska | Bolnichniy | Boshqa
+  matn       String   @db.Text
+  holat      Holat    @default(KORIB_CHIQILMOQDA)
+  sana       DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([bolim])
+  @@map("requests")
+}
+
+/// Hisobot — GPX xodim topshiradi, kadr tasdiqlaydi
+model Report {
+  id         String   @id @default(cuid())
+  employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  matn       String   @db.Text
+  holat      Holat    @default(KORIB_CHIQILMOQDA)
+  sana       DateTime @default(now())
+
+  @@index([employeeId])
+  @@map("reports")
+}

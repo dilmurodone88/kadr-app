@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f3f4f0;
+  --surface: #ffffff;
+  --surface-2: #edeee8;
+  --border: #dbdacf;
+  --text: #1b1b18;
+  --text-soft: #57564f; /* ~7:1 on white */
+  --text-mute: #6b6a62; /* darkened from demo #8B8A82 → ~5:1 (WCAG AA) */
+  --primary: #0f6e56;
+  --primary-dark: #085041;
+  --primary-tint: #e1f5ee;
+  --danger: #a32d2d;
+  --danger-tint: #fcebeb;
+  --success: #3b6d11;
+  --success-tint: #eaf3de;
+  --warn: #854f0b;
+  --warn-tint: #faeeda;
+  --radius: 10px;
+  --shadow-card: 0 1px 2px rgba(27, 27, 24, 0.04);
+  --shadow-pop: 0 8px 28px rgba(27, 27, 24, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-plex), "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Keyboard focus visibility (a11y — demoda yo'q edi) */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* Sichqoncha bosishida outline chiqmasin */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Harakatni kamaytirish afzalligi */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Kirish/paydo bo'lish animatsiyasi (150-300ms, ui-ux-pro-max) */
+@keyframes kadr-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: kadr-fade-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Modal overlay fade */
+@keyframes kadr-overlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
