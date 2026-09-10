@@ -6,6 +6,7 @@ import { searchXodim, type XodimMatch } from "@/lib/actions/hujjat";
 import { btn } from "@/components/ui";
 import { Field, inputCls, selectCls, labelCls } from "@/components/form-fields";
 import { IconSearch, IconDownload } from "@/components/icons";
+import { HujjatPreview } from "@/components/HujjatPreview";
 
 function autofillValue(f: DocField, m: XodimMatch): string {
   if (!f.from) return "";
@@ -212,6 +213,9 @@ export function HujjatForm({ templates }: { templates: DocTemplate[] }) {
           })}
         </div>
       </div>
+
+      {/* 4. Shablon ko'rinishi (jonli preview) */}
+      <HujjatPreview template={template} values={values} />
 
       <div className="flex items-center gap-3">
         <button type="button" onClick={download} disabled={downloading} className={`${btn.base} ${btn.primary} ${btn.md}`}>
