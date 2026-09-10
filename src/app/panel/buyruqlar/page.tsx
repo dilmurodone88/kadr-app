@@ -15,15 +15,13 @@ export default async function BuyruqlarPage() {
         sub="Shartnoma va shaxsiy tarkibga oid buyruq hujjatlarini tayyorlang"
       />
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:items-start">
-        <Panel accent title="Shartnomalar (Mehnat / GPX)">
-          <HujjatForm templates={templatesByCategory("shartnoma")} />
-        </Panel>
+      <Panel accent title="Shartnomalar (Mehnat / GPX)">
+        <HujjatForm templates={templatesByCategory("shartnoma")} />
+      </Panel>
 
-        <Panel accent title="Buyruqlar (shaxsiy tarkibga oid)">
-          <HujjatForm templates={templatesByCategory("buyruq")} />
-        </Panel>
-      </div>
+      <Panel accent title="Buyruqlar (shaxsiy tarkibga oid)">
+        <HujjatForm templates={templatesByCategory("buyruq")} />
+      </Panel>
     </>
   );
 }
