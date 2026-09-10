@@ -98,27 +98,25 @@ export function HujjatForm({ templates }: { templates: DocTemplate[] }) {
 
   return (
     <div className="space-y-6">
-      {/* 1. Hujjat turi */}
+      {/* 1. Hujjat turi (dropdown) */}
       <div>
-        <p className={labelCls}>Hujjat turi</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {templates.map((tpl) => (
-            <button
-              key={tpl.id}
-              type="button"
-              onClick={() => changeTemplate(tpl.id)}
-              aria-pressed={templateId === tpl.id}
-              className={`cursor-pointer rounded-lg border p-3 text-left transition-colors duration-200 ${
-                templateId === tpl.id
-                  ? "border-primary bg-primary-tint"
-                  : "border-border bg-surface hover:bg-surface-2"
-              }`}
-            >
-              <span className="block text-sm font-medium">{tpl.title}</span>
-              <span className="mt-0.5 block text-xs text-text-mute">{tpl.description}</span>
-            </button>
-          ))}
-        </div>
+        <Field label="Hujjat turi" htmlFor="hf-template">
+          <select
+            id="hf-template"
+            value={templateId}
+            onChange={(e) => changeTemplate(e.target.value)}
+            className={inputCls}
+          >
+            {templates.map((tpl) => (
+              <option key={tpl.id} value={tpl.id}>
+                {tpl.title}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {template.description && (
+          <p className="mt-1.5 text-xs text-text-mute">{template.description}</p>
+        )}
       </div>
 
       {/* 2. Xodimni qidirish */}
