@@ -122,14 +122,15 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   {
     id: "buyruq-ishga-qabul",
     title: "Ishga qabul",
-    description: "Xodimni ishga qabul qilish to‘g‘risida buyruq",
+    description: "Ishga qabul qilish to‘g‘risida buyruq (real shablon asosida)",
     category: "buyruq",
     fields: [
       F.fio,
       F.lavozim,
       F.bolim,
-      { name: "oylikMaosh", label: "Oylik maosh (so‘m)", type: "number", placeholder: "masalan: 5000000" },
-      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 12-b" },
+      F.pinfl,
+      { name: "buyruqRaqami", label: "Buyruq raqami", required: true, placeholder: "masalan: 132" },
+      { name: "shartnomaRaqami", label: "Mehnat shartnomasi raqami", required: true, placeholder: "masalan: 64" },
       { name: "sana", label: "Buyruq sanasi", type: "date", required: true },
     ],
   },

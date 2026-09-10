@@ -195,12 +195,48 @@ function buyruqDoc(v: Vals, subtitle: string, bodyParas: Paragraph[]): (Paragrap
   ];
 }
 
+// ── Tashkilot rekvizitlari (real shablondan; kerak bo'lsa o'zgartiring) ──
+const ORG_NOMI = "«DISTRI FOR COUNTRY» МЧЖ";
+const ORG_DIREKTOR = "О.Х.Юлдашев";
+const ORG_HUQUQSHUNOS = "О.О.Хаитов";
+const ORG_KADR_MENEJER = "Б.Р.Кучаров";
+
+const OYLAR_KIRIL = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентябр", "октябр", "ноябр", "декабр"];
+
+/** yyyy-mm-dd -> "14 август 2026 йил" (real shablon uslubi) */
+function sanaKiril(v: Vals): string {
+  const s = (v.sana ?? "").trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return "«___» __________ 20___ йил";
+  const [, y, mo, d] = m;
+  return `${Number(d)} ${OYLAR_KIRIL[Number(mo) - 1]} ${y} йил`;
+}
+
+/** Ishga qabul buyrug'i — real shablon (№132 ... ишга қабул) formatida */
 function buyruqIshgaQabul(v: Vals): (Paragraph | Table)[] {
-  return buyruqDoc(v, "Ishga qabul qilish to‘g‘risida", [
-    body([t(val(v, "fio"), true), t(` — ${val(v, "bolim")} bo‘limiga ${val(v, "lavozim")} lavozimiga ${sanaVal(v)} dan ishga qabul qilinsin.`)]),
-    ...(v.oylikMaosh?.trim() ? [body([t(`Unga oylik ish haqi ${val(v, "oylikMaosh")} so‘m miqdorida belgilansin.`)])] : []),
-    body([t("Asos: xodimning shaxsiy arizasi va mehnat shartnomasi.")]),
-  ]);
+  const sana = sanaKiril(v);
+  const C = (text: string, bold = false) =>
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [t(text, bold)] });
+  const L = (text: string, bold = false, before = 0) =>
+    new Paragraph({ spacing: { after: 120, before }, children: [t(text, bold)] });
+  return [
+    C(`БУЙРУҚ №  ${val(v, "buyruqRaqami")}   – ш/т`, true),
+    L(`   Тошкент ш.                                        ${sana}`),
+    C("« Ишга қабул қилиш тўғрисида»", true),
+    L(` ${val(v, "fio")} `, true),
+    L(`ЖШШИР:  ${val(v, "pinfl")}`),
+    L("Асос:", true),
+    body([t(`- ${ORG_NOMI}  ${val(v, "bolim")}  ${val(v, "lavozim")} лавозимига ${sana} кунидан ишга қабул қилинсин.`)]),
+    body([t("Ойлик маоши штат жадвалига мувофиқ белгилансин.")]),
+    body([t(`     ${val(v, "fio")} билан ${sana} куни тузилган № ${val(v, "shartnomaRaqami")} - сонли меҳнат шартномаси,  ЎзР МКнинг  127 - моддаси.`)]),
+    L(`Ижрочи директор                              ${ORG_DIREKTOR}`, false, 400),
+    L("Келишилди:", false, 200),
+    L(`Хуқуқшунос  в.в.б.                                    ${ORG_HUQUQSHUNOS}`),
+    L(`Кадрлар бўйича менеджер                    ${ORG_KADR_MENEJER}`),
+    L("Буйруқ билан танишдим ", false, 400),
+    L("ва бир нусхасини олдим:                              _______________________"),
+    L(`(Ф.И.О.)  ${sana}`),
+  ];
 }
 
 function buyruqIshdanBoshatish(v: Vals): (Paragraph | Table)[] {

@@ -155,7 +155,9 @@ export function HujjatForm({ templates }: { templates: DocTemplate[] }) {
                 >
                   <span className="font-medium">{m.fio}</span>
                   <span className="text-xs text-text-mute">
-                    {m.lavozim} · {m.anketa?.pinfl ? `PINFL: ${m.anketa.pinfl}` : "anketa yo‘q"}
+                    {m.manba === "nomzod" ? "Nomzod" : "Xodim"}
+                    {m.lavozim ? ` · ${m.lavozim}` : ""}
+                    {m.anketa?.pinfl ? ` · PINFL: ${m.anketa.pinfl}` : ""}
                   </span>
                 </button>
               </li>
