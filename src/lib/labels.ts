@@ -52,6 +52,23 @@ export const ORDER_TYPES = [
 /** Ariza turlari (xodim tanlaydi) */
 export const REQUEST_TYPES = ["Otpuska", "Bolnichniy", "Boshqa"] as const;
 
+/** Anketa: ma'lumot darajasi */
+export const MALUMOT_OPTIONS = [
+  "Oliy",
+  "Tugallanmagan oliy",
+  "O‘rta maxsus",
+  "O‘rta",
+] as const;
+
+/** Anketa: oilaviy holat */
+export const OILAVIY_OPTIONS = [
+  "Uylangan",
+  "Turmushga chiqqan",
+  "Bo‘ydoq",
+  "Turmushga chiqmagan",
+  "Ajrashgan",
+] as const;
+
 /** Badge rangini holatga qarab tanlash uchun kategoriya */
 export function holatTone(holat: Holat): "ok" | "no" | "wait" {
   if (holat === "TASDIQLANDI" || holat === "IMZOLANGAN") return "ok";

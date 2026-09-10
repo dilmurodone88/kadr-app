@@ -154,3 +154,13 @@ export function IconMenu(p: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconIdCard(p: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...p}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <circle cx="8.5" cy="11" r="2" />
+      <path d="M5 16.5c.6-1.4 2-2 3.5-2s2.9.6 3.5 2M15 10h4M15 14h3" />
+    </svg>
+  );
+}

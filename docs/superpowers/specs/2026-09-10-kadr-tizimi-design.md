@@ -150,3 +150,19 @@ ochilmaydi (app:3000 va db:3306 faqat ichki tarmoqda).
 - **JWT cookie auth** — tashqi xizmatsiz, Dockerda toza ishlaydi.
 - **Seed parollari `1234`** — demo bilan mos, lekin bcrypt bilan hash qilinadi.
 - Ma'lumotlar demo bilan bir xil (o'zbekcha terminologiya to'liq saqlanadi).
+
+## 12. As-built (amalga oshirilgan holat)
+- **API route'lar o'rniga server action'lar** ishlatildi (App Router idiomatikasi,
+  kamroq xato yuzasi). Faqat `/api/health` route sifatida qoldi (Docker healthcheck).
+- **Prisma migration o'rniga `db push`** — konteyner startida sxemani yoyadi
+  (idempotent, migration tarixi shart emas). `--accept-data-loss` olib tashlandi.
+- **Auth**: JWT (jose) httpOnly cookie + bcrypt. `requirePanelUser` guard barcha
+  panel sahifalarini himoya qiladi; server action'lar `requireRole` bilan tekshiradi.
+- **Docker daemon xatosi** tuzatildi: eskirgan AF_UNIX socket papkalari (`run`,
+  `docker-secrets-engine`) rename qilinib, Docker yangi socket bilan ishga tushdi
+  (factory reset qilinmadi — mavjud image/konteynerlar saqlandi).
+- **Code-review** (high effort): 8 topilma, 7 tasi tuzatildi (CVE patch, forma
+  reset, timezone, db push xavfsizligi, badge reuse, jadval sarlavha, auth guard);
+  1 tasi (layout query efficiency) maqbul deb qoldirildi.
+- **Verifikatsiya**: 3 konteyner sog'lom, login/dashboard/buyruq/QR-imzo brauzerda
+  sinovdan o'tdi. Yagona kirish: `http://localhost`.

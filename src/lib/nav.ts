@@ -8,7 +8,8 @@ export type IconKey =
   | "inbox"
   | "file"
   | "edit"
-  | "chart";
+  | "chart"
+  | "idcard";
 
 export interface NavItem {
   href: string;
@@ -28,6 +29,7 @@ export function getNavItems(role: Role, shartnoma: Contract | null): NavItem[] {
     case "kadr":
       return [
         { href: "/panel/xodimlar", label: "Xodimlar", icon: "users" },
+        { href: "/panel/anketalar", label: "Anketalar", icon: "idcard" },
         { href: "/panel/buyruqlar", label: "Buyruqlar arxivi", icon: "clipboard" },
         { href: "/panel/arizalar", label: "Menga tushgan arizalar", icon: "inbox" },
         { href: "/panel/gpx", label: "GPX ish hisobotlari", icon: "file" },
@@ -36,6 +38,7 @@ export function getNavItems(role: Role, shartnoma: Contract | null): NavItem[] {
     case "xodim": {
       const items: NavItem[] = [
         { href: "/panel/profil", label: "Mening ma‘lumotlarim", icon: "user" },
+        { href: "/panel/anketa", label: "Mening anketam", icon: "idcard" },
         { href: "/panel/ariza", label: "Ariza yozish", icon: "edit" },
         { href: "/panel/mening-buyruqlarim", label: "Mening buyruqlarim", icon: "clipboard" },
       ];

@@ -45,8 +45,32 @@ model Account {
   orders   Order[]
   requests Request[]
   reports  Report[]
+  anketa   Anketa?
 
   @@map("accounts")
+}
+
+/// Anketa — xodimning shaxsiy ma'lumotlar varag'i (1:1 Account)
+model Anketa {
+  id             String   @id @default(cuid())
+  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId      String   @unique
+  tugilganSana   String? // yyyy-mm-dd
+  tugilganJoy    String?
+  millati        String?
+  malumoti       String? // Oliy | O'rta maxsus | O'rta
+  mutaxassisligi String?
+  manzil         String?
+  telefon        String?
+  passportSeriya String? // masalan: AA
+  passportRaqam  String?
+  pinfl          String? // JSHSHIR (14 raqam)
+  oilaviyHolati  String? // Uylangan | Turmushga chiqqan | Bo'ydoq | ...
+  qoshimcha      String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("anketalar")
 }
 
 /// Buyruq — rahbar chiqaradi, QR bilan imzolanadi
