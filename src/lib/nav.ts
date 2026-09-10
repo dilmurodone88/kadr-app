@@ -9,7 +9,8 @@ export type IconKey =
   | "file"
   | "edit"
   | "chart"
-  | "idcard";
+  | "idcard"
+  | "document";
 
 export interface NavItem {
   href: string;
@@ -24,12 +25,14 @@ export function getNavItems(role: Role, shartnoma: Contract | null): NavItem[] {
       return [
         { href: "/panel", label: "Umumiy holat", icon: "home" },
         { href: "/panel/buyruqlar", label: "Buyruqlar", icon: "clipboard" },
+        { href: "/panel/hujjatlar", label: "Hujjat yaratish", icon: "document" },
         { href: "/panel/ariza", label: "Ariza yozish", icon: "edit" },
       ];
     case "kadr":
       return [
         { href: "/panel/xodimlar", label: "Xodimlar", icon: "users" },
         { href: "/panel/anketalar", label: "Anketalar", icon: "idcard" },
+        { href: "/panel/hujjatlar", label: "Hujjat yaratish", icon: "document" },
         { href: "/panel/buyruqlar", label: "Buyruqlar arxivi", icon: "clipboard" },
         { href: "/panel/arizalar", label: "Menga tushgan arizalar", icon: "inbox" },
         { href: "/panel/gpx", label: "GPX ish hisobotlari", icon: "file" },

@@ -23,6 +23,7 @@ import {
   IconMenu,
   IconClose,
   IconIdCard,
+  IconDocument,
 } from "@/components/icons";
 
 const ICONS: Record<IconKey, (p: { className?: string }) => React.ReactNode> = {
@@ -35,6 +36,7 @@ const ICONS: Record<IconKey, (p: { className?: string }) => React.ReactNode> = {
   edit: IconEdit,
   chart: IconChart,
   idcard: IconIdCard,
+  document: IconDocument,
 };
 
 function initials(fio: string) {

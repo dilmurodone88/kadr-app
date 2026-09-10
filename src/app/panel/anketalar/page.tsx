@@ -46,7 +46,7 @@ export default async function AnketalarPage() {
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     <Link href={`/panel/anketalar/${x.id}`} className={`${btn.base} ${btn.ghost} ${btn.sm}`}>
-                      {x.anketa ? "Ko‘rish / tahrirlash" : "To‘ldirish"}
+                      {x.anketa ? "Ko‘rish / tahrirlash" : "Anketa yaratish"}
                     </Link>
                   </td>
                 </tr>
