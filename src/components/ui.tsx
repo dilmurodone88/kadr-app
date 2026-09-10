@@ -27,16 +27,22 @@ export function Panel({
   title,
   children,
   className = "",
+  accent = false,
 }: {
   title?: string;
   children: ReactNode;
   className?: string;
+  accent?: boolean;
 }) {
   return (
     <section
-      className={`mb-6 rounded-card border border-border bg-surface p-6 shadow-card ${className}`}
+      className={`mb-6 rounded-card border bg-surface p-6 shadow-card ${
+        accent ? "border-primary" : "border-border"
+      } ${className}`}
     >
-      {title && <h2 className="mb-4 text-[15px] font-semibold">{title}</h2>}
+      {title && (
+        <h2 className={`mb-4 text-[15px] font-semibold ${accent ? "text-primary" : ""}`}>{title}</h2>
+      )}
       {children}
     </section>
   );
