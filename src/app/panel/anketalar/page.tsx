@@ -2,10 +2,11 @@ import Link from "next/link";
 import { requirePanelUser } from "@/lib/guard";
 import { prisma } from "@/lib/prisma";
 import { PageHeader, Panel, EmptyState, TableWrap, Thead, btn } from "@/components/ui";
+import { AnketaCreator } from "@/components/forms/AnketaCreator";
 
 export const dynamic = "force-dynamic";
 
-export default async function AnketalarPage() {
+export default async function AnketaPage() {
   await requirePanelUser("kadr");
 
   const xodimlar = await prisma.account.findMany({
@@ -20,33 +21,32 @@ export default async function AnketalarPage() {
     },
   });
 
+  const anketasiz = xodimlar
+    .filter((x) => !x.anketa)
+    .map((x) => ({ id: x.id, fio: x.fio, lavozim: x.lavozim }));
+  const anketali = xodimlar.filter((x) => x.anketa);
+
   return (
     <>
-      <PageHeader title="Anketalar" sub="Xodimlarning shaxsiy anketalari" />
-      <Panel>
-        {xodimlar.length ? (
+      <PageHeader title="Anketa" sub="Xodimlar uchun anketa yarating va yaratilgan anketalarni ko‘ring" />
+
+      <Panel title="Anketa yaratish">
+        <AnketaCreator employees={anketasiz} />
+      </Panel>
+
+      <Panel title={`Anketalar (${anketali.length})`}>
+        {anketali.length ? (
           <TableWrap>
-            <Thead columns={["F.I.O.", "Lavozim", "Bo‘lim", "Anketa holati", ""]} />
+            <Thead columns={["F.I.O.", "Lavozim", "Bo‘lim", ""]} />
             <tbody>
-              {xodimlar.map((x) => (
+              {anketali.map((x) => (
                 <tr key={x.id} className="border-b border-border last:border-0">
                   <td className="px-3 py-2.5 font-medium">{x.fio}</td>
                   <td className="px-3 py-2.5 text-text-soft">{x.lavozim}</td>
                   <td className="px-3 py-2.5 text-text-soft">{x.bolim}</td>
-                  <td className="px-3 py-2.5">
-                    {x.anketa ? (
-                      <span className="rounded-full bg-success-tint px-2.5 py-0.5 text-xs font-medium text-success">
-                        To‘ldirilgan
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-warn-tint px-2.5 py-0.5 text-xs font-medium text-warn">
-                        To‘ldirilmagan
-                      </span>
-                    )}
-                  </td>
                   <td className="px-3 py-2.5 text-right">
                     <Link href={`/panel/anketalar/${x.id}`} className={`${btn.base} ${btn.ghost} ${btn.sm}`}>
-                      {x.anketa ? "Ko‘rish / tahrirlash" : "Anketa yaratish"}
+                      Ko‘rish / tahrirlash
                     </Link>
                   </td>
                 </tr>
@@ -54,7 +54,7 @@ export default async function AnketalarPage() {
             </tbody>
           </TableWrap>
         ) : (
-          <EmptyState>Hozircha xodimlar yo‘q</EmptyState>
+          <EmptyState>Hozircha yaratilgan anketa yo‘q. Yuqoridan xodim tanlab anketa yarating.</EmptyState>
         )}
       </Panel>
     </>

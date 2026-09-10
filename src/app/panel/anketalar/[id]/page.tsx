@@ -28,7 +28,7 @@ export default async function AnketaEditPage({
         <AnketaForm accountId={account.id} anketa={account.anketa} />
       </Panel>
       <Link href="/panel/anketalar" className="text-sm text-primary hover:text-primary-dark">
-        ← Anketalar ro‘yxatiga qaytish
+        ← Anketa bo‘limiga qaytish
       </Link>
     </>
   );
