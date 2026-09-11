@@ -68,6 +68,22 @@ App ishga tushishda `DATABASE_URL` va `SESSION_SECRET` mavjudligini va uzunligin
 3. Kuchli, tasodifiy `SESSION_SECRET` va DB parollari.
 4. `add_header Strict-Transport-Security` ni HTTPS bo‘lganda qo‘shing.
 
+## Railway'ga deploy (bulutga, jonli link)
+
+Railway Docker + managed MySQL'ni bir joyda beradi. `railway.json` + `scripts/railway-start.sh` tayyor (migratsiya+seed+start, `$PORT`).
+
+**Qadamlar (Railway veb-panelida):**
+1. [railway.app](https://railway.app) → **New Project → Deploy from GitHub repo** → `kadr-app` repo'sini tanlang.
+2. Loyihaga **MySQL** qo'shing: **New → Database → Add MySQL**.
+3. App servisiga o'zgaruvchilar (Variables):
+   - `DATABASE_URL` → MySQL servisining `MYSQL_URL` (yoki `${{MySQL.MYSQL_URL}}` reference).
+   - `SESSION_SECRET` → uzun tasodifiy (`openssl rand -hex 32`).
+   - `FORCE_INSECURE_COOKIE=0` (Railway HTTPS beradi — Secure cookie yoqiladi).
+   - `NODE_ENV=production`.
+4. App servisida **Generate Domain** → jonli `https://...up.railway.app` link.
+
+Railway `railway.json` ni o'qiydi: Dockerfile bilan quradi, `scripts/railway-start.sh` bilan ishga tushiradi (`/api/health` healthcheck). nginx kerak emas — Railway o'zi HTTPS proksi beradi.
+
 ## CI
 
 `.github/workflows/ci.yml` — har push/PR da: typecheck (`tsc --noEmit`), lint, `next build`, Docker image build.
