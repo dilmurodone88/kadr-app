@@ -1,0 +1,32 @@
+# ── Dev override — hot-reload (build kutmasdan jonli o'zgarish) ──────
+# Ishlatish:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   yoki:  make dev
+# app "next dev" da ishlaydi, manba bind-mount qilinadi — kod o'zgarishi
+# darhol qayta yuklanadi. nginx/db/migrate o'zgarmaydi.
+services:
+  app:
+    command: ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
+    # Bind-mount va anon volumelar bilan ruxsat muammosi bo'lmasligi uchun (dev only)
+    user: root
+    environment:
+      NODE_ENV: development
+      # macOS/Docker bind-mount FS hodisalari ishonchli bo'lishi uchun polling
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app                # host manba → konteyner (jonli)
+      - /app/node_modules     # image'dagi node_modules saqlanadi
+      - /app/.next            # dev build keshi (host'ga yozilmaydi)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+      start_period: 120s

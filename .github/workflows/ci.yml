@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Bir vaqtda bitta run (eskilarini bekor qiladi)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1) Kod sifati: typecheck + lint + build ────────────────────────
+  quality:
+    name: Typecheck · Lint · Build
+    runs-on: ubuntu-latest
+    env:
+      # Build DBga ulanmaydi (sahifalar force-dynamic), lekin Prisma/env uchun soxta qiymatlar
+      DATABASE_URL: mysql://ci:ci@localhost:3306/ci
+      SESSION_SECRET: ci_dummy_secret_at_least_32_chars_long_000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci --no-audit --no-fund
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma schema validate
+        run: npx prisma validate
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx next lint
+        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+
+  # ── 2) Docker image quriladimi (push qilinmaydi, faqat build) ──────
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (runner target)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

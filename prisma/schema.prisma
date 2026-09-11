@@ -1,5 +1,8 @@
 // Kadr Boshqaruv Tizimi — Prisma schema (MySQL)
-// Demodagi ma'lumot modellari relyatsion sxemaga ko'chirildi.
+// B0: additive kengaytirish. Mavjud modellar (Account, Anketa, Order, Request,
+// Report) saqlanadi; Organization, Document, Signature, AuditLog, DocumentSequence,
+// MehnatFaoliyati, Contract2 qo'shiladi. Ilova ishlashda davom etadi.
+// To'liq reja: docs/REJA.md
 
 generator client {
   provider = "prisma-client-js"
@@ -8,7 +11,10 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  // relationMode default = "foreignKeys" (InnoDB) — DB-level butunlik (X6)
 }
+
+// ───────────────────────────  ENUMLAR  ──────────────────────────────
 
 enum Role {
   rahbar
@@ -23,86 +29,336 @@ enum Contract {
   GPX // GPX shartnomasi
 }
 
-/// Holat: barcha workflow obyektlari uchun umumiy status
-enum Holat {
-  KORIB_CHIQILMOQDA // Ko'rib chiqilmoqda
-  TASDIQLANDI // Tasdiqlandi
-  RAD_ETILDI // Rad etildi
-  IMZOLANGAN // Imzolangan (buyruqlar uchun)
+enum UserStatus {
+  FAOL
+  BLOKLANGAN
+  ARXIV
 }
 
+/// Umumiy holat. Imzoli hujjatlar uchun to'liq mashina (LOYIHA→…→IMZOLANGAN),
+/// arizalar/hisobotlar KORIB_CHIQILMOQDA/TASDIQLANDI/RAD_ETILDI qism to'plamini
+/// ishlatadi. (Keyingi fazada Document uchun alohida enum'ga ajratilishi mumkin.)
+enum Holat {
+  KORIB_CHIQILMOQDA
+  TASDIQLANDI
+  RAD_ETILDI
+  IMZOLANGAN
+  LOYIHA // hujjat: draft
+  TASDIQ_KUTILMOQDA // hujjat: rahbar imzosiga yuborilgan
+  BEKOR // hujjat: bekor qilingan
+}
+
+enum DocKategoriya {
+  MALUMOTNOMA
+  SHARTNOMA
+  BUYRUQ
+}
+
+enum SignerRole {
+  ISH_BERUVCHI // rahbar / tashkilot
+  XODIM // ikkinchi tomon / tanishtirish
+}
+
+enum SignMode {
+  SERVER
+  CLIENT
+}
+
+enum AuditAction {
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  PAROL_OZGARDI
+  CREATE
+  UPDATE
+  DOC_YARATILDI
+  DOC_YUBORILDI
+  DOC_IMZOLANDI
+  DOC_IMZO_RAD
+  DOC_BEKOR
+  STATUS_OZGARDI
+  ROL_OZGARDI
+}
+
+// ───────────────────────────  TASHKILOT  ────────────────────────────
+
+/// Tashkilot rekvizitlari (hozir hujjat-docx.ts da qattiq yozilgan — bazaga
+/// ko'chiriladi). Bitta yozuv (multi-tenant keyingi faza). E-IMZO STIR/PINFL
+/// solishtiruvi shu yerdan.
+model Organization {
+  id             String   @id @default(cuid())
+  nomi           String
+  nomiKirill     String?
+  stir           String?  @db.VarChar(9)
+  manzil         String?
+  telefon        String?
+  email          String?
+  direktorFio    String?
+  direktorPinfl  String?  @db.VarChar(14)
+  huquqshunosFio String?
+  kadrMenejerFio String?
+  bankNomi       String?
+  bankHisob      String?  @db.VarChar(24)
+  bankMfo        String?  @db.VarChar(5)
+  minIshHaqi     Decimal? @db.Decimal(15, 2)
+  blankHeader    String?  @db.Text
+  blankFooter    String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("tashkilot")
+}
+
+// ─────────────────────────  LOGIN / RBAC  ───────────────────────────
+
 model Account {
-  id        String    @id @default(cuid())
-  username  String    @unique
+  id        String     @id @default(cuid())
+  username  String     @unique
   password  String // bcrypt hash
   role      Role
+  status    UserStatus @default(FAOL)
   fio       String
   lavozim   String
   bolim     String
   shartnoma Contract?
+  pinfl     String?    @db.VarChar(14) // rahbar imzo bog'lash uchun ham
+  // Parol siyosati / sessiya
+  mustChangePassword Boolean   @default(false)
+  sessionVersion     Int       @default(0) // JWT "v"; +1 => eski tokenlar yaroqsiz
+  failedLoginCount   Int       @default(0)
+  lockedUntil        DateTime?
+  passwordChangedAt  DateTime?
   createdAt DateTime  @default(now())
 
-  orders   Order[]
-  requests Request[]
-  reports  Report[]
-  anketa   Anketa?
+  orders           Order[]
+  requests         Request[]
+  reports          Report[]
+  anketa           Anketa?
+  createdDocuments Document[]  @relation("DocCreatedBy")
+  subjectDocuments Document[]  @relation("DocSubjectAccount")
+  signatures       Signature[]
+  auditLogs        AuditLog[]
+  contracts        Contract2[]
 
   @@map("accounts")
 }
 
-/// Anketa — ishga olinishi kerak bo'lgan nomzodning shaxsiy varag'i.
-/// Standalone: mavjud xodimga bog'lanmagan (accountId ixtiyoriy — ishga
-/// olingach bog'lanishi mumkin). Nomzodlar Xodimlar ro'yxatida ko'rinmaydi.
+// ──────────────────  ANKETA (yagona ma'lumot manbai)  ────────────────
+
 model Anketa {
   id             String   @id @default(cuid())
   account        Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   accountId      String?  @unique
-  fio            String   @default("") // nomzodning F.I.O.
-  lavozim        String? // ko'zlanayotgan lavozim
-  bolim          String?
+  status         String   @default("QORALAMA") // QORALAMA | TOLIQ | ARXIV
+
+  // Identity
+  familiya       String?
+  ism            String?
+  otasiIsmi      String?
+  fio            String   @default("")
+  jinsi          String? // Erkak | Ayol
   tugilganSana   String? // yyyy-mm-dd
   tugilganJoy    String?
   millati        String?
-  malumoti       String? // Oliy | O'rta maxsus | O'rta
+  fuqaroligi     String?  @default("O'zbekiston")
+
+  // Ish (nomzod uchun ko'zlanayotgan lavozim/bo'lim)
+  lavozim        String?
+  bolim          String?
+
+  // Ta'lim / mutaxassislik
+  malumoti       String?
   mutaxassisligi String?
-  manzil         String?
-  telefon        String?
-  passportSeriya String? // masalan: AA
-  passportRaqam  String?
-  pinfl          String? // JSHSHIR (14 raqam)
-  kartaRaqami    String? // Anor bank (Xumo) karta raqami
-  oilaviyHolati  String? // Uylangan | Turmushga chiqqan | Bo'ydoq | ...
+  bitirganOquv   String?
+  bitirganYil    Int?
+  diplomRaqam    String?
+
+  // Aloqa / oila / manzil
+  oilaviyHolati  String?
+  farzandlarSoni Int?
+  manzil         String? // (mavjud — umumiy)
+  manzilDoimiy   String?  @db.Text
+  manzilFaktik   String?  @db.Text
+  telefon        String?  @db.VarChar(20)
+  email          String?
+
+  // Hujjatlar / moliya
+  pinfl          String?  @db.VarChar(14)
+  passportSeriya String?  @db.VarChar(2)
+  passportRaqam  String?  @db.VarChar(7)
+  passportBeruvchi String?
+  passportSana   String?
+  kartaRaqami    String?  @db.VarChar(19)
+  bankNomi       String?
+  hisobRaqam     String?  @db.VarChar(20)
+  inps           String?  @db.VarChar(14)
+  harbiyHolati   String?
+
   qoshimcha      String?  @db.Text
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  mehnatFaoliyati    MehnatFaoliyati[]
+  subjectDocuments   Document[]        @relation("DocSubjectAnketa")
+
+  @@index([pinfl])
+  @@index([fio])
   @@map("anketalar")
 }
 
-/// Buyruq — rahbar chiqaradi, QR bilan imzolanadi
+/// Mehnat daftarchasi — strukturaviy (erkin matn emas)
+model MehnatFaoliyati {
+  id            String  @id @default(cuid())
+  anketa        Anketa  @relation(fields: [anketaId], references: [id], onDelete: Cascade)
+  anketaId      String
+  tashkilotNomi String
+  tashkilotStir String? @db.VarChar(9)
+  lavozim       String
+  qabulSana     String?
+  boshatishSana String?
+  buyruqRaqami  String?
+  boshatishAsos String?
+
+  @@index([anketaId])
+  @@map("mehnat_faoliyati")
+}
+
+// ───────────────────  HUJJAT ARXIVI (immutable)  ─────────────────────
+
+/// Generatsiya qilingan har hujjat SAQLANADI. Baytlar bir marta muzlatiladi
+/// (storageKey), docxHash barqaror. valuesSnapshot — imzo paytidagi qiymatlar.
+model Document {
+  id               String        @id @default(cuid())
+  kategoriya       DocKategoriya
+  templateId       String
+  templateVersion  String        @default("1")
+  title            String
+  docNumber        String?
+  year             Int
+  holat            Holat         @default(LOYIHA)
+
+  subjectAccount   Account?      @relation("DocSubjectAccount", fields: [subjectAccountId], references: [id], onDelete: Restrict)
+  subjectAccountId String?
+  subjectAnketa    Anketa?       @relation("DocSubjectAnketa", fields: [subjectAnketaId], references: [id], onDelete: Restrict)
+  subjectAnketaId  String?
+
+  valuesSnapshot   Json
+  signManifest     String?       @db.Text
+  expectedSignerId String? // server belgilaydi (rahbar Account.id)
+  storageKey       String?
+  docxHash         String?       @db.VarChar(80) // algo:hex
+  mimeType         String        @default("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+  supersedesId     String?
+  saqlashMuddatiYil Int?
+
+  createdBy        Account       @relation("DocCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  createdById      String
+  issuedAt         DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  signatures       Signature[]
+  contract         Contract2?
+  order            Order?
+
+  @@unique([kategoriya, templateId, year, docNumber])
+  @@index([holat])
+  @@index([subjectAccountId])
+  @@index([subjectAnketaId])
+  @@map("hujjatlar")
+}
+
+/// Atomik raqamlash (saqlash guruhiga qarab: SHARTNOMA-MEHNAT, BUYRUQ-QABUL, ...)
+model DocumentSequence {
+  scope      String   @id
+  year       Int
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@map("hujjat_raqamlari")
+}
+
+// ─────────────────────────  E-IMZO IMZOSI  ──────────────────────────
+
+model Signature {
+  id              String     @id @default(cuid())
+  document        Document   @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  documentId      String
+  signer          Account?   @relation(fields: [signerAccountId], references: [id], onDelete: SetNull)
+  signerAccountId String?
+  signerRole      SignerRole
+  mode            SignMode
+  pkcs7           String     @db.LongText
+  pkcs7Sha256     String     @unique
+  signedHash      String     @db.VarChar(80) // algo:hex
+  signerPinfl     String?    @db.VarChar(14)
+  signerCn        String?
+  certSerial      String?
+  certValidTo     DateTime?
+  chainVerified   Boolean    @default(false)
+  revocationChecked Boolean  @default(false)
+  verified        Boolean    @default(false)
+  signedAt        DateTime   @default(now())
+  ipHmac          String?
+
+  @@unique([documentId, signerRole])
+  @@index([documentId])
+  @@map("imzolar")
+}
+
+// ──────────────────  SHARTNOMA / BUYRUQ (domen)  ─────────────────────
+
+/// Shartnoma domen yozuvi (fayl artefakti Document'da). Contract enum bilan
+/// nom to'qnashmasligi uchun Contract2.
+model Contract2 {
+  id             String    @id @default(cuid())
+  account        Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  accountId      String?
+  type           Contract
+  contractNumber String    @unique
+  startDate      String?
+  endDate        String?
+  salary         Decimal?  @db.Decimal(15, 2)
+  holat          Holat     @default(LOYIHA)
+  document       Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  documentId     String?   @unique
+  createdAt      DateTime  @default(now())
+
+  @@map("shartnomalar")
+}
+
+/// Buyruq — mavjud model, kengaytirildi (holat mashinasi + hujjat/subyekt havolasi)
 model Order {
-  id         String   @id @default(cuid())
-  turi       String
-  employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId String
-  rahbar     String // buyruqni chiqargan rahbar username
-  izoh       String?  @db.Text
-  holat      Holat    @default(IMZOLANGAN)
-  sana       DateTime @default(now())
+  id              String    @id @default(cuid())
+  turi            String
+  employee        Account   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId      String
+  subjectAnketaId String? // nomzod ishga qabuli uchun (B5)
+  rahbar          String // buyruqni chiqargan rahbar username
+  izoh            String?   @db.Text
+  effectiveDate   String?
+  payload         Json?
+  holat           Holat     @default(IMZOLANGAN)
+  document        Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  documentId      String?   @unique
+  sana            DateTime  @default(now())
 
   @@index([employeeId])
   @@map("orders")
 }
 
-/// Ariza — xodim yuboradi, bo'limga yo'naltiriladi
+// ────────────────────────  ARIZA / HISOBOT  ─────────────────────────
+
 model Request {
   id         String   @id @default(cuid())
   employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId String
-  bolim      String // Kadrlar | Buxgalteriya | IT
-  turi       String // Otpuska | Bolnichniy | Boshqa
+  bolim      String
+  turi       String
   matn       String   @db.Text
   holat      Holat    @default(KORIB_CHIQILMOQDA)
+  reviewedById String?
+  reviewedAt DateTime?
   sana       DateTime @default(now())
 
   @@index([employeeId])
@@ -110,15 +366,37 @@ model Request {
   @@map("requests")
 }
 
-/// Hisobot — GPX xodim topshiradi, kadr tasdiqlaydi
 model Report {
   id         String   @id @default(cuid())
   employee   Account  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId String
+  davrBoshi  String?
+  davrOxiri  String?
   matn       String   @db.Text
   holat      Holat    @default(KORIB_CHIQILMOQDA)
   sana       DateTime @default(now())
 
   @@index([employeeId])
   @@map("reports")
+}
+
+// ──────────────────────────  AUDIT IZI  ─────────────────────────────
+
+/// Append-only audit (hash-chain: prevHash → hash, buzilish aniqlanadi)
+model AuditLog {
+  id         String      @id @default(cuid())
+  actor      Account?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorId    String?
+  action     AuditAction
+  entityType String
+  entityId   String?
+  detail     Json?
+  ipHmac     String?
+  prevHash   String?     @db.VarChar(64)
+  hash       String      @db.VarChar(64)
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+  @@map("audit_log")
 }

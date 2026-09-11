@@ -21,6 +21,9 @@ export const HOLAT_LABELS: Record<Holat, string> = {
   TASDIQLANDI: "Tasdiqlandi",
   RAD_ETILDI: "Rad etildi",
   IMZOLANGAN: "Imzolangan",
+  LOYIHA: "Loyiha",
+  TASDIQ_KUTILMOQDA: "Tasdiqlash kutilmoqda",
+  BEKOR: "Bekor qilingan",
 };
 
 /** Ariza yuboriladigan bo'limlar (demodagi BOLIM_OPTIONS) */

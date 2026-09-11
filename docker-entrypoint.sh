@@ -1,14 +1,16 @@
 #!/bin/sh
-# App konteyneri ishga tushganda: sxemani DBga yoyish + seed + start.
-# DB tayyorligi compose healthcheck (depends_on: service_healthy) orqali kafolatlanadi.
+# App konteyneri: env validatsiya (fail-fast) + Next.js start.
+# Migratsiya/seed alohida "migrate" service'da (scripts/migrate.sh) bajariladi.
 set -e
 
-echo "⏳ [1/3] Prisma sxemasini DBga yoyish (db push)..."
-# --accept-data-loss yo'q: destruktiv o'zgarishda jim ma'lumot yo'qotish o'rniga xato beradi
-npx prisma db push --skip-generate
+# ── Env validatsiya ──────────────────────────────────────────────────
+: "${DATABASE_URL:?❌ DATABASE_URL o'rnatilmagan}"
+: "${SESSION_SECRET:?❌ SESSION_SECRET o'rnatilmagan}"
+if [ "${#SESSION_SECRET}" -lt 32 ]; then
+  echo "❌ SESSION_SECRET juda qisqa (kamida 32 belgi kerak, hozir ${#SESSION_SECRET})."
+  echo "   Yarating:  openssl rand -hex 32"
+  exit 1
+fi
 
-echo "🌱 [2/3] Demo hisoblarni seed qilish..."
-npx prisma db seed || echo "⚠️  Seed o'tkazib yuborildi (ehtimol allaqachon mavjud)"
-
-echo "🚀 [3/3] Next.js ishga tushmoqda (port 3000)..."
+echo "🚀 Next.js ishga tushmoqda (0.0.0.0:3000)..."
 exec npm run start -- -H 0.0.0.0 -p 3000
